@@ -17,11 +17,15 @@ public class Player : MonoBehaviour
 
     private Camera cam;
     private Rigidbody rig;
+    private Weapon weapon;
 
     void Awake()
     {
       cam = Camera.main; //Camera.main e um metodo que busca a camera principal e e muito custoso para a performance, achando o elemento apenas uma vez e cacheando em uma variavel e recomendado
       rig = GetComponent<Rigidbody>();
+      weapon = GetComponent<Weapon>();
+
+      Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
@@ -34,6 +38,14 @@ public class Player : MonoBehaviour
       }
       CamLook();
       touchedGround();
+
+      if(Input.GetButton("Fire1"))
+      {
+        if(weapon.CanShoot())
+        {
+          weapon.Shoot();
+        }
+      }
     }
 
     void Move()
