@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-    public GameObject bulletPrefab;
+    public ObjectPool bulletPool;
     public Transform muzzle;
 
     public int curAmmo;
@@ -16,11 +16,15 @@ public class Weapon : MonoBehaviour
     public float shootRate;
     private float lastShootTime;
     private bool isPlayer;
+    public AudioClip shootSfx;
+    private AudioSource audioSource;
 
     void Awake()
     {
         if(GetComponent<Player>())
             isPlayer = true;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     public bool CanShoot()
@@ -39,9 +43,15 @@ public class Weapon : MonoBehaviour
     {
         lastShootTime = Time.time;
         curAmmo--;
-
-        GameObject bullet = Instantiate(bulletPrefab, muzzle.position,muzzle.rotation);
+        audioSource.PlayOneShot(shootSfx);
+        GameObject bullet = bulletPool.GetObject();
+        bullet.transform.position = muzzle.position;
+        bullet.transform.rotation = muzzle.rotation;
         bullet.GetComponent<Rigidbody>().velocity = muzzle.forward * bulletSpeed;
+
+        if(isPlayer){
+            GameUI.instance.UpdateAmmoText(curAmmo,maxAmmo);
+        }
     }
 
     

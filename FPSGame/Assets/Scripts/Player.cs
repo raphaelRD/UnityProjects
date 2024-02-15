@@ -15,6 +15,11 @@ public class Player : MonoBehaviour
     private float rotX;
     public int jumpCount;
 
+    [Header("Stats")]
+    public int maxHp;
+    public int curHp;
+    
+
     private Camera cam;
     private Rigidbody rig;
     private Weapon weapon;
@@ -28,8 +33,18 @@ public class Player : MonoBehaviour
       Cursor.lockState = CursorLockMode.Locked;
     }
 
+    void Start()
+    {
+      GameUI.instance.UpdateHealthBar(curHp,maxHp);
+      GameUI.instance.UpdateScoreText(0);
+      GameUI.instance.UpdateAmmoText(weapon.curAmmo,weapon.maxAmmo);
+    }
+
     void Update()
     {
+      //nao faz nada se o jogo estiver pausado
+      if(GameManager.instance.gamePaused==true)
+          return;
       Move();
       if(Input.GetButtonDown("Jump"))
       {
@@ -45,6 +60,15 @@ public class Player : MonoBehaviour
         {
           weapon.Shoot();
         }
+      }
+
+      if(Input.GetButtonDown("Fire2"))
+      {
+        Time.timeScale = 0.7f;
+      }
+      if(Input.GetButtonUp("Fire2"))
+      {
+        Time.timeScale = 1.0f;
       }
     }
 
@@ -95,5 +119,32 @@ public class Player : MonoBehaviour
         rig.AddForce(Vector3.up * jumpForce,ForceMode.Impulse);
         jumpCount++;
       }
+    }
+
+    public void TakeDamage(int damage)
+    {
+      curHp -= damage;
+      GameUI.instance.UpdateHealthBar(curHp,maxHp);
+      if(curHp<=0)
+      {
+        Die();
+      }
+    }
+
+    public void GiveHealth(int amount)
+    {
+      curHp= Mathf.Clamp(curHp + amount,0,maxHp);
+      GameUI.instance.UpdateHealthBar(curHp,maxHp);
+    }
+
+     public void GiveAmmo(int amount)
+    {
+      weapon.curAmmo= Mathf.Clamp(weapon.curAmmo + amount,0,weapon.maxAmmo);
+      GameUI.instance.UpdateAmmoText(weapon.curAmmo,weapon.maxAmmo);
+    }
+
+    void Die()
+    {
+      GameManager.instance.LoseGame();
     }
 }
