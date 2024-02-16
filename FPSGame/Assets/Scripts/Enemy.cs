@@ -34,17 +34,16 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         float dist = Vector3.Distance(transform.position,target.transform.position);
+        ChaseTarget();
         if(dist <= attackRange)
         {
+            
             if(weapon.CanShoot())
             {
                 weapon.Shoot();
             }
         }
-        else{
-            ChaseTarget();
-        }
-        
+
     }
 
     void ChaseTarget()
